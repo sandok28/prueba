@@ -3,10 +3,11 @@ import java.awt.Color;
 import java.awt.event.*;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class SandovalShell extends JFrame{
+public class Shell extends JFrame{
 	
 	//elementos gráficos
 	JTextField tComando;
@@ -17,7 +18,7 @@ public class SandovalShell extends JFrame{
 	//oyente de click de botón
 	ActionListener alEjecutar;
 
-	public SandovalShell(){
+	public Shell(){
 		setSize(700,600);
 		setTitle(System.getProperty("os.name"));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,36 +59,37 @@ public class SandovalShell extends JFrame{
 
 	private void ejecutar(){
 
-		Process proc; 
+		Process proc = null; 
 		InputStream is_in;
 		String s_aux;
 		BufferedReader br;
-
+		 if(tComando.getText().equalsIgnoreCase("clear")||tComando.getText().equalsIgnoreCase("cls")){tResultado.setText("");}
+	      else{
 		try
 		{
 			
+			try {
+				proc = Runtime.getRuntime().exec(tComando.getText());
+			} catch (IOException e1) {
+				proc = Runtime.getRuntime().exec("cmd.exe /C"+tComando.getText());
+			}
 			
-			
-			Process p =  new  ProcessBuilder ( "cmd.exe" ,  "/C" , tComando.getText() ).redirectErrorStream ( true).start();
-      InputStream es = p . getInputStream ();
-      BufferedReader brr =  new  BufferedReader (new  InputStreamReader ( es ));
-      String in;
-      while(( in = brr . readLine ()) !=  null )  {
-     
-            	tResultado.setText(tResultado.getText()+in+"\n");
-             
-            } 
-		}
-		catch(Exception e)
-		{
-			System.out.println(e);
-		}
-
-
-	}
+			is_in=proc.getInputStream();
+			br=new BufferedReader (new InputStreamReader (is_in));
+			s_aux = br.readLine();
+	        while (s_aux!=null)
+	        {
+	        	tResultado.setText(tResultado.getText()+s_aux+"\n");
+	            s_aux = br.readLine();
+	        } 
+      } catch (Exception e) {
+	
+        }
+	      }
+	 }
 
 	public static void main(String args[]){
-		SandovalShell ventana = new SandovalShell();
+		Shell ventana = new Shell();
 		ventana.acciones();	
 		ventana.graficos();	
 	}
